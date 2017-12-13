@@ -7,7 +7,14 @@
  T1357041600  
  *
  * A Processing example sketch to automatically send the messages is included in the download
- * On Linux, you can use "date +T%s\n > /dev/ttyUSB0" (UTC time zone)
+ * On Linux, you can use the commands below:
+ 
+stty -F /dev/ttyUSB0 9600
+date +T%s\n > /dev/ttyUSB0
+
+ * This can also be done interactively
+screen /dev/ttyUSB0 9600
+ 
  * 
  * for testing: 
  * 
@@ -20,7 +27,7 @@
  
 #include <TimeLib.h>
 
-#define TIME_HEADER  "T"   // Header tag for serial time sync message
+#define TIME_HEADER  'T'   // Header tag for serial time sync message
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message
  
 const unsigned long TIME_ZONE_SEC = -25200L; // UTC 7 hours ahead of MT
@@ -122,6 +129,9 @@ void processSyncMessage() {
      pctime = Serial.parseInt() + TIME_ZONE_SEC;
      if( pctime >= DEFAULT_TIME) { // check the integer is a valid time (greater than Jan 1 2013)
        setTime(pctime); // Sync Arduino clock to the time received on the serial port
+       Serial.println("Sync message received");
+       
+       digitalClockDisplay();
      }
   }
 }
@@ -144,4 +154,3 @@ time_t requestSync()
   Serial.write(TIME_REQUEST);  
   return 0; // the time will be sent later in response to serial mesg
 }
-
